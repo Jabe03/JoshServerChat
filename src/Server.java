@@ -54,7 +54,7 @@ public class Server implements Closeable, Host{
 
     }
     public static boolean isServerId(UUID id){
-        return id.equals(instance.serverID);
+        return id.equals(serverID);
     }
     public void addClient(ClientHandler c) {
         clients.add(c);
@@ -71,7 +71,6 @@ public class Server implements Closeable, Host{
     }
 
     public void getConnection(int port) throws IOException {
-        //System.out.println("running");
         ss = new ServerSocket(port);
         running = true;
         Thread t = new Thread(() -> {
@@ -87,7 +86,6 @@ public class Server implements Closeable, Host{
                 }
 
             }
-            //System.out.println("Done");
         });
         t.setName("ConnectionSearching");
         t.start();
@@ -117,69 +115,34 @@ public class Server implements Closeable, Host{
 
 
                         } else{
-                            switch(m.getText()) {
-                                case "updateMessages":
-                                    sendOutUpdatedMessageList();
-                                    break;
-                                case "userJoining":
-                                case "userLeaving":
-                                    //System.out.println("toCW ID has ID: " + m.getObjectMessage() + " ... should have id:" + m.getID());
-                                    //System.out.println("sending joining or leaving message to chatWindow: " + toCW);
-
-                                    cw.addMessage(new Message(m.getID(), serverID, m.getText()));
-
-                                    break;
-                                default:
-
-                                    cw.addMessage(new Message("serverMessage", serverID, "Unknown command: " + m.getText()));
+                            switch (m.getText()) {
+                                case "updateMessages" -> sendOutUpdatedMessageList();
+                                case "userJoining", "userLeaving" ->
+                                        cw.addMessage(new Message(m.getID(), serverID, m.getText()));
+                                default -> cw.addMessage(new Message("serverMessage", serverID, "Unknown command: " + m.getText()));
                             }
                         }
-                        //System.out.println("end of process packets " + m);
+
 
                     }
-                    //System.out.println(packet);
                     packets.remove(0);
                 }
 
 
     }
-    /*
-    private ArrayList<Object> getPackets(){
-        return packets;
-    }
-    
-     */
+
     public void updateClients(){
         for(ClientHandler c: clients){
-            //System.out.println("Sending message(" + cw.messages + ") to " + cw.getNameById(c.id));
             c.sendObject(new Message(cw.getParticipants(), serverID, "updatedClients"));
         }
     }
     public void sendOutUpdatedMessageList(){
 
         for(ClientHandler c: clients){
-            //System.out.println("Sending message(" + cw.messages + ") to " + cw.getNameById(c.id));
             c.sendObject(new Message(cw.messages, serverID, "updatedMessages"));
         }
     }
-    /*
-    public static byte[] truncate(byte[] og) {
-        int finalIndex = 0;
-        for (int i = 0; i < og.length; i++) {
-            if (og[i] == 0) {
-                finalIndex = i;
-                break;
-            }
-        }
 
-
-
-        byte[] res = new byte[finalIndex];
-        System.arraycopy(og, 0, res, 0, finalIndex);
-        return res;
-    }
-
-     */
 
     @Override
     public void sendMessage(Message m) {
@@ -209,7 +172,7 @@ public class Server implements Closeable, Host{
     }
 
     public void setName(String name){
-        System.out.println("you cannot reset the server's name");
+
     }
 
 }

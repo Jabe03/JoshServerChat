@@ -50,19 +50,16 @@ public class ClientHandler {
     }
 
     public void listenForInputs(){
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                running = true;
-                while(running){
-                    try {
-                        Object message = ois.readObject();
-                        Server.getInstance().addPacket(message);
-                    } catch(SocketException e){
-                        running = false;
-                    } catch(IOException | ClassNotFoundException e){
-                        e.printStackTrace();
-                    }
+        Thread t = new Thread(() -> {
+            running = true;
+            while(running){
+                try {
+                    Object message = ois.readObject();
+                    Server.getInstance().addPacket(message);
+                } catch(SocketException e){
+                    running = false;
+                } catch(IOException | ClassNotFoundException e){
+                    e.printStackTrace();
                 }
             }
         });
@@ -76,10 +73,7 @@ public class ClientHandler {
     }
     public synchronized void sendObject(Object o){
         try {
-
-            System.out.println("(77)Sending object: " + o);
             oos.writeUnshared(o);
-            System.out.println("Done sending: " + o );
             oos.reset();
         } catch(IOException e){
             e.printStackTrace();
