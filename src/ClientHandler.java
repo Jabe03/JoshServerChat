@@ -34,7 +34,7 @@ public class ClientHandler {
             Object o = ois.readObject();
             System.out.println("Name object: " + o);
             if (o instanceof Message){
-                name = ((Message) o).getText();
+                name = ((Message)o).getText();
                 System.out.println("Name received: " + name);
             } else {
                 oos.writeObject("%error%Name expected, " + o.getClass() + " got... Disconnecting");

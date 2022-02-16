@@ -3,7 +3,6 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.UUID;
@@ -48,6 +47,8 @@ public class ChatWindow implements KeyListener{
     private static final Color accent3 = new Color(14, 119, 59);
     private static final Color backgroundColor = new Color(25, 28, 38);
     private static final Color statusMessageColor = new Color(252, 255, 105);
+    private boolean shiftHeld;
+    private boolean ctrlHeld;
 
 
     public static void main(String[] args){
@@ -134,7 +135,8 @@ public class ChatWindow implements KeyListener{
                     yCursor = ChatWindow.this.paintMessage(m, g, yCursor);
                 }
                 currentMessagesHeight = yCursor-scrollHeight;
-
+                g.setColor(Color.red);
+                //g.drawLine(0,yCursor,this.getWidth(),yCursor);
                 if(username != null) {
                     g.setColor(accent3);
                     int usernameLength = g.getFontMetrics().stringWidth(username);
@@ -341,15 +343,20 @@ public class ChatWindow implements KeyListener{
     }
 
     public void addMessage(Message m){
-        //System.out.println("cw recieved massage: " + m);
+        System.out.println("cw recieved massage: " + m);
         messages.add(m);
         sendMessageToHost("updateMessages");
+
         panel.repaint();
         //System.out.println(messages);
     }
     public void setMessages(ArrayList<Message> messages){
         this.messages = messages;
+        System.out.println(scrollHeight + currentMessagesHeight >= panel.getHeight() - textField.getHeight()-2);
         panel.repaint();
+        if(scrollHeight  == panel.getHeight() - textField.getHeight()-2 -currentMessagesHeight){
+            scrollToBottom();
+        }
     }
 
     @Override
@@ -360,26 +367,74 @@ public class ChatWindow implements KeyListener{
     @Override
     public void keyPressed(KeyEvent e) {
         int key = e.getKeyCode();
-        if(key == KeyEvent.VK_ENTER){
-            if(!textField.getText().equals("") || (currentDataInput==gettingPort || currentDataInput == enterForReconnect)) {
+        if(key == KeyEvent.VK_ENTER) {
+            if (!textField.getText().equals("") || (currentDataInput == gettingPort || currentDataInput == enterForReconnect)) {
                 sendAndClearTextField();
             }
-        } else if(key == KeyEvent.VK_UP){
-            scroll(10);
-        } else if(key == KeyEvent.VK_DOWN){
-            scroll(-10);
+
+        }
+        else if(key == KeyEvent.VK_SHIFT){
+            shiftHeld = true;
+        } else if(key == KeyEvent.VK_CONTROL){
+            ctrlHeld = true;
+        }
+        doScrollFromKeyCode(key);
+
+    }
+    private void doScrollFromKeyCode(int key) {
+
+        if(ctrlHeld){
+            if(key == KeyEvent.VK_DOWN){
+                scrollToBottomFromKeys();
+            } else if (key == KeyEvent.VK_UP){
+                scrollToTop();
+            }
+            return;
+        }
+        int height = 0;
+        if (shiftHeld) {
+            height = 25;
+        } else {
+            height = 10;
+        }
+        if (key == KeyEvent.VK_UP) {
+            scroll(height);
+        } else if (key == KeyEvent.VK_DOWN) {
+            scroll(-height);
 
         }
     }
+
+    public void scrollToBottom(){
+
+        scrollHeight = panel.getHeight() - textField.getHeight()-2 -currentMessagesHeight - 30;
+        frame.repaint();
+    }
+    public void scrollToBottomFromKeys(){
+        scrollHeight = panel.getHeight() - textField.getHeight()-2 -currentMessagesHeight;
+        frame.repaint();
+    }
+    public void scrollToTop(){
+        scrollHeight = 0;
+        frame.repaint();
+    }
     public void scroll(int height){
-        scrollHeight+= height;
-        System.out.println("Scrollheight: " + scrollHeight + "current messages height: " + currentMessagesHeight);
+        if(height == Integer.MIN_VALUE){
+            scrollHeight = Integer.MIN_VALUE;
+        } else if (height == Integer.MAX_VALUE) {
+            scrollHeight = 0;
+        } else {
+                scrollHeight += height;
+            }
+
 
         if(scrollHeight > 0){
             scrollHeight = 0;
-        }else if(scrollHeight + currentMessagesHeight < frame.getHeight() -65){
-            scrollHeight -= height;
+        }else if(scrollHeight  < panel.getHeight() - textField.getHeight()-2 - currentMessagesHeight){
+            scrollHeight = panel.getHeight() - textField.getHeight()-2 -currentMessagesHeight;
+        } else{
         }
+        System.out.println("Scrollheight: " + scrollHeight + "current messages height: " + currentMessagesHeight);
         frame.repaint();
     }
     public void sendAndClearTextField(){
@@ -401,7 +456,13 @@ public class ChatWindow implements KeyListener{
     }
     @Override
     public void keyReleased(KeyEvent e) {
+        int key = e.getKeyCode();
 
+        if(key == KeyEvent.VK_SHIFT){
+            shiftHeld = false;
+        } else if (key == KeyEvent.VK_CONTROL){
+            ctrlHeld = false;
+        }
     }
     public void sendMessageToHost(String m){
         if(host == null){
