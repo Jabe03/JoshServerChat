@@ -7,37 +7,27 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Scanner;
 import java.util.UUID;
-
-import javax.swing.text.html.HTMLDocument.HTMLReader.HiddenAction;
 
 public class Client implements Host {
     static int numberOfAttempts;
 
-    public static void main(String[] args) throws Exception {
-//        Scanner sc = new Scanner(System.in);
-//        System.out.println("What is the IP?");
-//        String addr = sc.nextLine();
-//        System.out.println("Whats is the port?");
-//        int port = sc.nextInt();
-//        Client c = new Client(addr, port);
-        Client c = new Client();
+    public static void main(String[] args){
+
+        new Client();
 
     }
 
     private Socket sr;
-    private InputStream is;
-    private OutputStream os;
     ObjectInputStream ois;
     ObjectOutputStream oos;
     String clientName;
     UUID clientId;
     ChatWindow cw;
 
-    public Client() throws IOException {
+    public Client() {
         cw = new ChatWindow(this);
-        //startRuntimeChat();
+
     }
     public void startRuntimeChat()throws IOException{
         System.out.println("Starting chat....");
@@ -71,8 +61,9 @@ public class Client implements Host {
             if(m.isTextMessage()){
                 System.out.println("wtf to do with this " + m);
             } else {
-                if(m.getText().equals("updatedMessages")){
+                if(m.getText().equals("updatedMessages") ){
                     //System.out.println("Updated messages: " + m.getObjectMessage());
+
                     cw.setMessages((ArrayList<Message>)m.getObjectMessage());
                 } else if (m.getText().equals("updatedClients")){
                     cw.setParticipants((HashMap<UUID, String>)m.getObjectMessage());
@@ -94,21 +85,12 @@ public class Client implements Host {
             cw.tryServerInputAgain();
             return false;
         }
-        is = sr.getInputStream();
-        os = sr.getOutputStream();
+        InputStream is = sr.getInputStream();
+        OutputStream os = sr.getOutputStream();
         oos = new ObjectOutputStream(os);
         ois = new ObjectInputStream(is);
         return true;
     }
-
-//    public void sendMessage(String msg) throws IOException {
-//
-//        byte[] b = msg.getBytes();
-//        os.write(b);
-//        System.out.println("Message sent!");
-//        System.out.println("MSg sent!");
-//
-//    }
 
     public Object readObject(){
         try{
@@ -122,7 +104,7 @@ public class Client implements Host {
         try {
             oos.writeObject(o);
         } catch(SocketException e){
-            return;//connection reset, cant do anything
+            //connection reset, can't do anything
         }
         catch (IOException e){
             e.printStackTrace();

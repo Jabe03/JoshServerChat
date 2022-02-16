@@ -1,5 +1,7 @@
 
 
+import org.jetbrains.annotations.NotNull;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -54,13 +56,10 @@ public class ChatWindow implements KeyListener{
     public static void main(String[] args){
         //Scanner tsm = new Scanner(System.in);
         System.out.println("What is your name?");
-        ChatWindow cw = new ChatWindow("Josh", null, UUID.randomUUID());
+        new ChatWindow("Josh", null, UUID.randomUUID());
 
     }
 
-//    public String getNameById(UUID id){
-//        return names.get(id);
-//    }
     public ChatWindow(String username, Host m, UUID id){
         this.host = m;
         messages = new ArrayList<>();
@@ -194,7 +193,7 @@ public class ChatWindow implements KeyListener{
         this.ip = ip;
         checkState();
     }
-    private void setPort(String port){
+    private void setPort(@NotNull String port){
         if(port.equals("")){
             this.port = 5656;
             checkState();
@@ -282,15 +281,9 @@ public class ChatWindow implements KeyListener{
                 yCursor = drawTextMessage(m, g, yCursor);
             }
         } else{
-            switch(m.getText()){
-                case "serverMessage":
-                case "chatWindowMessage":
-                case "userJoining":
-                case "userLeaving":
-                    yCursor = drawStatusMessage(m,g,yCursor);
-                    break;
-                default:
-                    System.out.println("(123)Unknown command: " + m.getText());
+            switch (m.getText()) {
+                case "serverMessage", "chatWindowMessage", "userJoining", "userLeaving" -> yCursor = drawStatusMessage(m, g, yCursor);
+                default -> System.out.println("(123)Unknown command: " + m.getText());
             }
         }
         return yCursor;
@@ -391,7 +384,7 @@ public class ChatWindow implements KeyListener{
             }
             return;
         }
-        int height = 0;
+        int height;
         if (shiftHeld) {
             height = 25;
         } else {
@@ -432,7 +425,6 @@ public class ChatWindow implements KeyListener{
             scrollHeight = 0;
         }else if(scrollHeight  < panel.getHeight() - textField.getHeight()-2 - currentMessagesHeight){
             scrollHeight = panel.getHeight() - textField.getHeight()-2 -currentMessagesHeight;
-        } else{
         }
         System.out.println("Scrollheight: " + scrollHeight + "current messages height: " + currentMessagesHeight);
         frame.repaint();

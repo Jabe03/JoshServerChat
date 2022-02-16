@@ -6,7 +6,7 @@ public class Message implements Serializable {
     Object objectMessage;
     String text;
     UUID id;
-    private boolean isTextMessage;
+    private final boolean isTextMessage;
 
     public Message(String text, UUID id){
         this.text = text;
@@ -19,9 +19,7 @@ public class Message implements Serializable {
         this.id = id;
         isTextMessage = false;
     }
-    public Message(String text){
-        this.text = text;
-    }
+
     public UUID getID(){ return this.id;}
     public String getText(){
         return this.text;

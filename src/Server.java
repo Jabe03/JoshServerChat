@@ -7,45 +7,29 @@ public class Server implements Closeable, Host{
 
     private boolean running;
 
-    public static void main(String[] args) throws Exception {
-        new Server(5656);
+    public static void main(String[] args) {
+        new Server();
     }
 
     ServerSocket ss;
     Socket sr;
     OutputStream os;
-    //ObjectInputStream ois;
-    //InputStream is;
+
     ChatWindow cw;
     private static Server instance;
     private static final UUID serverID = UUID.randomUUID();
     final private ArrayList<ClientHandler> clients;
     volatile ArrayList<Object> packets;
 
-    private Server(int port) throws IOException {
+    private Server() {
 
         instance = this;
         clients = new ArrayList<>();
         packets = new ArrayList<>();
-        startServer(port);
+        startServer();
     }
-    /*
-    private Server()throws  IOException{
-        instance = this;
-        Scanner tsm = new Scanner(System.in);
-        clients = new ArrayList<>();
-        System.out.println("What port?");
-        packets = new ArrayList<Object>();
 
-        startServer(tsm.nextInt());
-        //startProcessing();
-
-
-        //Server.getInstance().addPacket("starting 40");
-        //System.out.println(this);
-    }
-    */
-    public void startServer(int port) throws IOException{
+    public void startServer() {
         cw = new ChatWindow("server", this,serverID);
 
     }
